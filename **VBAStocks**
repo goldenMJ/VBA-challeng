@@ -1,0 +1,73 @@
+Sub Stock()
+
+Dim ticker_Name As String
+Dim ticker_Total As Double
+ticker_Total = 0
+Dim close_total As Double
+close_total = 0
+Dim open_total As Double
+open_total = 0
+Dim Yearly_change As Double
+Yearly_change = 0
+
+Dim Summary_Table_Row As Integer
+Summary_Table_Row = 4
+
+    ' Add a sheet named "Combined Data"
+    Sheets.Add.Name = "Combined_Data"
+    'move created sheet to be first sheet
+    Sheets("Combined_Data").Move Before:=Sheet1
+    ' Specify the location of the combined sheet
+    Set combined_sheet = Worksheets("Combined_Data")
+
+    ' Loop through all sheets
+    For Each ws In Worksheets
+
+        ' Find the last row of the combined sheet after each paste
+        ' Add 1 to get first empty row
+        lastrow = combined_sheet.Cells(Rows.Count, "A").End(xlUp).Row + 1
+
+        ' Find the last row of each worksheet
+        ' Subtract one to return the number of rows without header
+        lastRowState = ws.Cells(Rows.Count, "A").End(xlUp).Row - 1
+
+        ' Copy the contents of each state sheet into the combined sheet
+        combined_sheet.Range("A" & lastrow & ":G" & ((lastRowState - 1) + lastrow)).Value = ws.Range("A2:G" & (lastRowState + 1)).Value
+
+    Next ws
+
+    ' Copy the headers from sheet 1
+    combined_sheet.Range("A1:G1").Value = Sheet2.Range("A1:G1").Value
+    
+    ' Autofit to display data
+    combined_sheet.Columns("A:G").AutoFit
+    
+For i = 2 To lastrow
+ If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+         ticker_Name = Cells(i, 1).Value
+         ticker_Total = ticker_Total + Cells(i, 7).Value
+         close_total = Cells(i, 6).Value
+         Range("I" & Summary_Table_Row).Value = ticker_Name
+         Range("J" & Summary_Table_Row).Value = ticker_Total
+         Yearly_change = close_total - open_total
+         Range("K" & Summary_Table_Row).Value = Yearly_change
+         Summary_Table_Row = Summary_Table_Row + 1
+         ticker_Total = 0
+         
+ ElseIf Cells(i + 1, 1).Value = Cells(i, 1).Value Then
+        open_total = Cells(i, 3).Value
+        Range("L" & Summary_Table_Row).Value = Yearly_change / open_total * 100
+
+         
+         
+ Else
+         ticker_Total = ticker_Total + Cells(i, 7).Value
+ End If
+        Next i
+End Sub
+
+         
+     
+
+
+
